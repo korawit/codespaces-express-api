@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 var mysql = require('mysql');
 
 const app = express();
-const port = 5000;
+const port = 5001;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 
@@ -22,9 +22,9 @@ app.use((req,res,next)=>{
 app.use(express.json());
 
 var con = mysql.createConnection({
-  host: "korawit.ddns.net=",
+  host: "korawit.ddns.net",
   user: "webapp",
-  password: "password",
+  password: "secret2024",
   port: "3307",
   database: "shop",
 });
@@ -57,8 +57,51 @@ app.get('/api/products/:id',(req,res)=>{
       res.send(result);
     }
   });
-})
+});
+
+app.post('/api/addproduct',(req,res)=>{
+  const name=req.body.name;
+  const price=req.body.price;
+  const img=req.body.img;
+  console.log(name,price,img);
+  con.query(`INSERT INTO products (name,price,img) VALUES('${name}','${price}','${img}')`,function(err,result,fields){
+    if(err) throw res.status(400).send("Error, cannot add product");
+    con.query("SELECT * FROM products",function(err,result,fields){
+      if(err) throw res.status(400).send("No products found");
+      console.log(result);
+      res.send({products:result,status:"ok"});
+    });
+    });
+});
+
+app.delete('/api/delproduct/:id',(req,res)=>{
+  const id =req.params.id;
+  con.query(`DELETE FROM products WHERE id=${id}`,function(err,result,fields){
+    if(err) throw res.status(400).send("Error, cannot delete product");
+    con.query("SELECT * FROM products",function(err,result,fields){
+      if(err) throw res.status(400).send("No products found");
+      console.log(result);
+      res.send({products:result,status:"ok"});
+    });
+    });
+});
+
+app.put('/api/updateproduct/:id',(req,res)=>{
+  const id =req.params.id;
+  const name=req.body.name;
+  const price=req.body.price;
+  const img=req.body.img;
+  console.log(id,name,price,img)
+  con.query(`UPDATE products SET name='${name}',price='${price}',img='${img}' WHERE id=${id}`,function(err,result,fields){
+    if(err) throw res.status(400).send("Error, cannot update product");
+    con.query("SELECT * FROM products",function(err,result,fields){
+      if(err) throw res.status(400).send("No products found");
+      console.log(result);
+      res.send({products:result,status:"ok"});
+    });
+    });
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
-})
+});
