@@ -24,7 +24,7 @@ app.use(express.json());
 var con = mysql.createConnection({
   host: "korawit.ddns.net",
   user: "webapp",
-  password: "secret2024",
+  password: "secret",
   port: "3307",
   database: "shop",
 });
